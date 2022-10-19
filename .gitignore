@@ -1,0 +1,17 @@
+node_modules
+.env
+coverage
+coverage.json
+typechain
+typechain-types
+
+deployments
+gas-report.txt
+
+#Hardhat files
+cache
+artifacts
+
+#notes
+README.md 
+LotteryNotes.sol

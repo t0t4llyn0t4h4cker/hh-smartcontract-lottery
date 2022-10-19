@@ -44,6 +44,10 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
 		log: true,
 		waitConfirmations: 1,
 	})
+	if (developmentChains.includes(network.name)) {
+		log("Local network detected, Consumer added to vrfCoordinatorV2Mock")
+		await vrfCoordinatorV2Mock.addConsumer(subscriptionId, lottery.address)
+	}
 	log(`Lottery deployed at ${lottery.address}`)
 
 	if (!developmentChains.includes(network.name) && process.env.ETHERSCAN_API_KEY) {

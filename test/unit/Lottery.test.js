@@ -195,10 +195,11 @@ const { developmentChains, networkConfig } = require("../../helper-hardhat-confi
 						})
 						// kicking off the event by mocking the chainlink keepers and vrf coordinator
 						// run scenario to fire event here within Promise; variable scope
-						const tx = await Lottery.performUpkeep("0x")
+						const tx = await Lottery.performUpkeep("0x") // sim Chainlink keeper here
 						const txReciept = await tx.wait(1)
 						const startingWinnerBalance = await accounts[1].getBalance()
 						await vrfCoordinatorV2Mock.fulfillRandomWords(
+							// cant sim vrf on livenet, call Mock
 							txReciept.events[1].args.requestId,
 							Lottery.address
 						) // listener picks up here

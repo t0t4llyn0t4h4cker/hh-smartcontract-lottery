@@ -135,13 +135,74 @@ const { developmentChains, networkConfig } = require("../../helper-hardhat-confi
 					await network.provider.send("evm_increaseTime", [interval.toNumber() + 3])
 					await network.provider.send("evm_mine", [])
 				})
-				it.only("can only be called after performUpkeep", async () => {
+				it("can only be called after performUpkeep", async () => {
 					await expect(
 						vrfCoordinatorV2Mock.fulfillRandomWords(0, Lottery.address)
 					).to.be.revertedWith("nonexistent request")
 					await expect(
 						vrfCoordinatorV2Mock.fulfillRandomWords(1, Lottery.address)
 					).to.be.revertedWith("nonexistent request")
+				})
+				it("picks a winner, resets the lottery, and sends money", async () => {
+					const additionalEntrants = 3 // 3 more players will be simulated
+					const startingAccountIndex = 1 // since deployer is at 0
+					const accounts = await ethers.getSigners() // gets hh generated accounts
+					for (
+						let i = startingAccountIndex;
+						i < startingAccountIndex + additionalEntrants;
+						i++
+					) {
+						let accountConnectedLottery = Lottery.connect(accounts[i])
+						await accountConnectedLottery.enterLottery({ value: lotteryEntraceFee })
+					}
+					const startingTimeStamp = await Lottery.getLatestTimeStamp()
+
+					// performUpkeep (mock being on Chainlink Keeper)
+					// fulfillRandomWords (mock being the Chainlink VRF)
+					// We will have to wait for the fulfillRandomWords to be called on test/mainnet
+					// setting up listener using .once
+					await new Promise(async (resolve, reject) => {
+						Lottery.once("WinnerPicked", async () => {
+							console.log("WiinerPicked event fired!")
+							try {
+								// Grab ending values that were updated
+								const recentWinner = await Lottery.getRecentWinner() // address
+								const lotteryState = await Lottery.getLotteryState() // enum
+								// const winnerBalance = await Lottery.provider.getBalance(
+								// 	recentWinner
+								// ) // uint256
+								const endingWinnerBalance = await accounts[1].getBalance() //uint256
+								const endingTimeStap = await Lottery.getLatestTimeStamp() // uint256
+								const numPlayers = await Lottery.getNumberOfPlayers() //uint256
+								await expect(Lottery.getPlayer(0)).to.be.reverted
+								assert.equal(numPlayers, 0)
+								assert.equal(lotteryState.toString(), "0")
+								assert(endingTimeStap > startingTimeStamp)
+
+								assert.equal(
+									endingWinnerBalance.toString(),
+									startingWinnerBalance.add(
+										lotteryEntraceFee
+											.mul(additionalEntrants)
+											.add(lotteryEntraceFee)
+											.toString()
+									)
+								)
+								resolve() // if try passes, resolves the promise
+							} catch (e) {
+								reject(e) // if try fails, rejects the promise
+							}
+						})
+						// kicking off the event by mocking the chainlink keepers and vrf coordinator
+						// run scenario to fire event here within Promise; variable scope
+						const tx = await Lottery.performUpkeep("0x")
+						const txReciept = await tx.wait(1)
+						const startingWinnerBalance = await accounts[1].getBalance()
+						await vrfCoordinatorV2Mock.fulfillRandomWords(
+							txReciept.events[1].args.requestId,
+							Lottery.address
+						) // listener picks up here
+					})
 				})
 			})
 	  })

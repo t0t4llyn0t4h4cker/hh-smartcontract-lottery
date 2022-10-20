@@ -22,7 +22,7 @@ module.exports = {
 		},
 		goerli: {
 			chainId: 5,
-			blockConfirmations: 6,
+			blockConfirmations: 4,
 			url: GOERLI_RPC_URL,
 			accounts: [PRIVATE_KEY],
 		},
@@ -44,5 +44,8 @@ module.exports = {
 		currency: "USD",
 		token: "Matic",
 		// coinmarketcap: COINMARKETCAP_API_KEY,
+	},
+	mocha: {
+		timeout: 300000, // 300 seconds
 	},
 }

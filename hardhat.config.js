@@ -18,12 +18,13 @@ module.exports = {
 	networks: {
 		hardhat: {
 			chainId: 31337,
-			blockConfirmations: 3,
+			blockConfirmations: 5,
 		},
 		goerli: {
 			chainId: 5,
 			blockConfirmations: 4,
 			url: GOERLI_RPC_URL,
+			saveDeployments: true,
 			accounts: [PRIVATE_KEY],
 		},
 	},
@@ -42,10 +43,10 @@ module.exports = {
 		outputFile: "gas-report.txt",
 		noColors: true,
 		currency: "USD",
-		token: "Matic",
+		// token: "Matic",
 		// coinmarketcap: COINMARKETCAP_API_KEY,
 	},
 	mocha: {
-		timeout: 300000, // 300 seconds
+		timeout: 500000, // 500 seconds max for running tests
 	},
 }

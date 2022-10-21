@@ -4,7 +4,7 @@ const { developmentChains, networkConfig } = require("../../helper-hardhat-confi
 
 !developmentChains.includes(network.name) // will only on dev/local chain
 	? describe.skip
-	: describe("Lottery", async () => {
+	: describe("Lottery Unit Tests", async () => {
 			let Lottery, vrfCoordinatorV2Mock, lotteryEntraceFee, deployer, interval
 			const chainId = network.config.chainId
 

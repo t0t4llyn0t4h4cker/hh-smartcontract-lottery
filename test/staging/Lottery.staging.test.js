@@ -2,6 +2,8 @@ const { assert, expect } = require("chai")
 const { network, getNamedAccounts, ethers } = require("hardhat")
 const { developmentChains } = require("../../helper-hardhat-config")
 
+// https://goerli.etherscan.io/address/0x6e0560f38F45B94d526C5c38b14D7A25BD1c4877#code
+
 developmentChains.includes(network.name) // will only on livechain
 	? describe.skip
 	: describe("Lottery Staging Tests", async () => {
